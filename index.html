@@ -1,0 +1,56 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mapa com Imagem do Drone</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@6.15.1/ol.css" />
+  <script src="https://cdn.jsdelivr.net/npm/ol@6.15.1/ol.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.5/proj4.js"></script>
+  <style>
+    html, body, #map {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script>
+    // Definir EPSG:31985 (SIRGAS 2000 / UTM zone 25S)
+    proj4.defs('EPSG:31985', '+proj=utm +zone=25 +south +datum=SIRGAS2000 +units=m +no_defs');
+    ol.proj.proj4.register(proj4);
+    const proj31985 = ol.proj.get('EPSG:31985');
+
+    // Extensão da imagem do drone
+    const extent31985 = [231844.66068941046, 9210570.410580005, 232802.90551243777, 9211417.585585851];
+
+    // Camada de imagem
+    const droneImage = new ol.layer.Image({
+      source: new ol.source.ImageStatic({
+        url: 'rib_compressed.jpeg',
+        imageExtent: extent31985,
+        projection: proj31985
+      }),
+      opacity: 0.8
+    });
+
+    // Mapa base com OSM + imagem
+    const map = new ol.Map({
+      target: 'map',
+      layers: [
+        new ol.layer.Tile({ source: new ol.source.OSM() }),
+        droneImage
+      ],
+      view: new ol.View({
+        projection: proj31985,
+        center: ol.extent.getCenter(extent31985),
+        zoom: 16
+      })
+    });
+  </script>
+</body>
+</html>
